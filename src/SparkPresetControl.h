@@ -16,6 +16,7 @@ class SparkDataControl;
 
 class SparkPresetControl {
 public:
+    void setActiveSectionBankWindow(int minBankInclusive, int maxBankInclusive);    //MK
     static SparkPresetControl &getInstance();
     SparkPresetControl(const SparkPresetControl &) = delete; // Disable copy constructor
     SparkPresetControl &operator=(const SparkPresetControl &) = delete;
@@ -81,8 +82,12 @@ public:
     void validateChecksums(vector<byte> checksums);
 
 private:
-    SparkPresetControl();
-    ~SparkPresetControl();
+
+    int sectionMinBank_ = 1;
+    int sectionMaxBank_ = 1;
+
+    SparkPresetControl();  //MK
+    ~SparkPresetControl();  //MK
 
     // PRESET variables
     Preset activePreset_;

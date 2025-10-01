@@ -6,6 +6,9 @@
 #include <Wire.h>
 #include <string>
 #include <LittleFS.h>
+#include <SectionRanges.h>
+#include <SparkPresetControl.h>
+
 
 #include "src/SparkButtonHandler.h"
 #include "src/SparkDataControl.h"
@@ -54,6 +57,16 @@ void setup() {
         Serial.println("LittleFS Mount failed");
         return;
     }
+    
+    // Build section ranges from PresetList.txt and set initial window
+    SectionRanges::get().loadFromPresetList("/PresetList.txt");
+    const SectionRange* initialSec = SectionRanges::get().current();
+    if (initialSec) {
+      SparkPresetControl::getInstance().setActiveSectionBankWindow(initialSec->startBank, initialSec->endBank);
+      // Optional: ensure we start on the section's first bank
+      SparkPresetControl::getInstance().setBank(initialSec->startBank);
+    }
+
     // spark_dc = new SparkDataControl();
     spark_bh.setDataControl(&spark_dc);
     operationMode = spark_bh.checkBootOperationMode();

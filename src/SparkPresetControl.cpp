@@ -137,54 +137,82 @@ void SparkPresetControl::setBank(int i) {
     activeBank_ = pendingBank_ = i;
 }
 
-void SparkPresetControl::increaseBank() {
+void SparkPresetControl::setActiveSectionBankWindow(int minBankInclusive, int maxBankInclusive) {   //MK
+    sectionMinBank_ = max(0, minBankInclusive);     // keep 0 allowed for HW bank                   
+    sectionMaxBank_ = max(sectionMinBank_, maxBankInclusive);
 
+    // Clamp current selections to window (except HW bank rules)
+    if (pendingBank_ > sectionMaxBank_) pendingBank_ = sectionMaxBank_;
+    if (pendingBank_ < sectionMinBank_ && pendingBank_ != 0) pendingBank_ = sectionMinBank_;
+    if (activeBank_  > sectionMaxBank_) activeBank_  = sectionMaxBank_;
+    if (activeBank_  < sectionMinBank_ && activeBank_  != 0) activeBank_  = sectionMinBank_;
+}                                                                                                   //MK
+
+{                                                                                                   //MK
     OperationMode operationMode = sparkDC->operationMode();
     if (!sparkDC->processAction()) {
         return;
     }
 
-    // Cycle around if at the end
-    if (pendingBank_ == numberOfBanks()) {
-        // Roll over to 0 when going beyond the last bank
-        pendingBank_ = 0;
-        pendingHWBank_ = 0;
-    }
-    // Check if to increase bank or if to switch between HW banks, cycle through HW banks first
-    else if (pendingHWBank_ < presetBuilder.numberOfHWBanks() - 1) {
-        pendingHWBank_++;
+    // If currently on HW bank (0): cycle HW pages first, then jump to section start
+    if (pendingBank_ == 0) {
+        if (pendingHWBank_ < presetBuilder.numberOfHWBanks() - 1) {
+            pendingHWBank_++;
+        } else {
+            pendingHWBank_ = 0;
+            pendingBank_ = max(sectionMinBank_, 1);
+        }
     } else {
-        pendingBank_++;
+        // Within section window [sectionMinBank_..sectionMaxBank_]
+        if (pendingBank_ >= sectionMaxBank_) {
+            // wrap to HW bank if any, else wrap to section start
+            if (presetBuilder.numberOfHWBanks() > 0) {
+                pendingBank_ = 0;
+                pendingHWBank_ = 0;
+            } else {
+                pendingBank_ = sectionMinBank_;
+            }
+        } else {
+            pendingBank_++;
+        }
     }
+
     if (operationMode == SPARK_MODE_AMP && pendingBank_ == 0) {
-        pendingBank_ = min(1, numberOfBanks());
+        // AMP mode avoids bank 0 (HW)
+        pendingBank_ = max(sectionMinBank_, 1);
     }
     updatePendingBankStatus();
-}
+}                                                                                                   //MK
 
-void SparkPresetControl::decreaseBank() {
 
+{                                                                                                    //MK
     OperationMode operationMode = sparkDC->operationMode();
-
     if (!sparkDC->processAction()) {
         return;
     }
 
-    // Roll over to last bank if going beyond the first bank
-    if (pendingBank_ == 0 && pendingHWBank_ == 0) {
-        pendingBank_ = numberOfBanks();
+    if (pendingBank_ == 0) {
+        // From HW bank, wrap to end of section window
+        pendingBank_ = sectionMaxBank_;
         pendingHWBank_ = presetBuilder.numberOfHWBanks() - 1;
-    } else if (pendingBank_ == 0) {
-        pendingHWBank_--;
+    } else if (pendingBank_ <= sectionMinBank_) {
+        // Wrap to HW if available, else to end of window
+        if (presetBuilder.numberOfHWBanks() > 0) {
+            pendingBank_ = 0;
+            pendingHWBank_ = presetBuilder.numberOfHWBanks() - 1;
+        } else {
+            pendingBank_ = sectionMaxBank_;
+        }
     } else {
         pendingBank_--;
     }
-    // Don't go to bank 0 in AMP mode
+
     if (operationMode == SPARK_MODE_AMP && pendingBank_ == 0) {
-        pendingBank_ = numberOfBanks();
+        // AMP mode avoids bank 0 (HW)
+        pendingBank_ = sectionMaxBank_;
     }
     updatePendingBankStatus();
-}
+}                                                                                                //MK
 
 void SparkPresetControl::updatePendingBankStatus() {
     // Mark selected bank as the pending Bank to mark in display.
