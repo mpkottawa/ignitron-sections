@@ -32,6 +32,22 @@ SparkLEDControl spark_led;
 SparkDisplayControl sparkDisplay;
 SparkPresetControl &presetControl = SparkPresetControl::getInstance();
 
+const char* lastSectionFile = "/lastsection.txt";
+
+void saveLastSection(int idx) {
+    File f = LittleFS.open(lastSectionFile, "w");
+    if (f) { f.printf("%d\n", idx); f.close(); }
+}
+
+int loadLastSection() {
+    File f = LittleFS.open(lastSectionFile, "r");
+    if (!f) return 0; // default to section 0
+    String line = f.readStringUntil('\n');
+    f.close();
+    return line.toInt();
+}
+
+
 unsigned long lastInitialPresetTimestamp = 0;
 unsigned long currentTimestamp = 0;
 int initialRequestInterval = 3000;
