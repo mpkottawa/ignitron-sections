@@ -96,6 +96,15 @@ void SparkDisplayControl::showInitialMessage() {
     drawCentreString(modeText.c_str(), 50);
 }
 
+void SparkDisplayControl::showSection(const String& name) {
+    // Re-use the existing "message overlay" used by showPresetName()
+    // It shows primaryLineText for showMessageInterval (2000 ms)
+    previousMillis = millis();
+    primaryLineText = string("Section: ") + string(name.c_str()); // String -> std::string
+    showMsgFlag = true;
+}
+
+
 void SparkDisplayControl::showBankAndPresetNum() {
 
     // Display the bank and preset number

@@ -67,6 +67,40 @@ void setup() {
       SparkPresetControl::getInstance().setBank(initialSec->startBank);
     }
 
+    // Debounced "Hold 3 while in APP mode" to cycle sections
+static unsigned long lastSectionSwitchMs = 0;
+static const unsigned long sectionSwitchDebounceMs = 600; // tweak if you like
+
+void handleSectionSwitchIfNeeded() {
+  // Replace with your real flags/functions if their names differ
+  extern bool appModeActive;        // or however you track APP mode
+  if (!appModeActive) return;
+
+  if (isHeld(SWITCH_3)) {           // use your actual read fn & constant here
+    unsigned long now = millis();
+    if (now - lastSectionSwitchMs >= sectionSwitchDebounceMs) {
+      lastSectionSwitchMs = now;
+
+      auto& sec = SectionRanges::get();
+      int next = (sec.currentIndex() + 1) % sec.count();
+      sec.setCurrentIndex(next);
+
+      const SectionRange* cur = sec.current();
+      if (cur) {
+        SparkPresetControl::getInstance().setActiveSectionBankWindow(
+            cur->startBank, cur->endBank);
+        SparkPresetControl::getInstance().setBank(cur->startBank);
+            sparkDisplay.showSection(cur->label);   // <-- NEW: flash "Section: <name>" on OLED
+
+
+        // Optional: blink feedback showing section #
+        // for (int i = 0; i <= next; i++) { blinkLED(); delay(150); }
+      }
+    }
+  }
+}
+
+
     // spark_dc = new SparkDataControl();
     spark_bh.setDataControl(&spark_dc);
     operationMode = spark_bh.checkBootOperationMode();
@@ -124,38 +158,30 @@ void loop() {
             spark_bh.readButtons();
         }
 
-        // After connection is established, continue.
-        //  On first boot, get the amp type and set the preset to Hardware setting 1.
-
-        if (spark_dc.isInitBoot()) { // && !spark_dc.isInitHWRead()) {
-            // This is only done once after the connection has been established
-            // Read AMP name to determine special parameters
+        if (spark_dc.isInitBoot()) {
             spark_dc.getSerialNumber();
-            //spark_dc.getAmpName();
-            // delay(100);
-            // spark_dc.getCurrentPresetFromSpark();
             spark_dc.isInitBoot() = false;
-            // spark_dc.configureLooper();
         }
     }
 
-    // Check if presets have been updated (not needed in Keyboard mode)
     if (operationMode != SPARK_MODE_KEYBOARD) {
         spark_dc.checkForUpdates();
     }
+
     // Reading button input
     spark_bh.configureButtons();
     spark_bh.readButtons();
+
+    // 🔹 NEW: handle section switching (Hold Switch 3 in APP mode)
+    handleSectionSwitchIfNeeded();
+
 #ifdef ENABLE_BATTERY_STATUS_INDICATOR
-    // Update battery level
     spark_dc.updateBatteryLevel();
 #endif
-    // Update LED status
+
     spark_led.updateLEDs();
-    // Update display
     sparkDisplay.update();
 }
-
 
 
 // === BEGIN: LISTPRESETS serial support =======================================

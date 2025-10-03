@@ -41,6 +41,10 @@ public:
         sparkDC_ = dc;
     }
 
+// Show a short overlay message with the active section name
+void showSection(const String& name);
+
+
 private:
     // OLED Screen config
 

@@ -10,9 +10,9 @@
             "includePath": [
                 "Z:/ignitron sections",
                 "Z:/ignitron sections/src",
+                "C:/Users/mpkot/.platformio/packages/framework-arduinoespressif32/libraries/BluetoothSerial/src",
                 "C:/Users/mpkot/.platformio/packages/framework-arduinoespressif32/libraries/LittleFS/src",
                 "C:/Users/mpkot/.platformio/packages/framework-arduinoespressif32/libraries/FS/src",
-                "C:/Users/mpkot/.platformio/packages/framework-arduinoespressif32/libraries/BluetoothSerial/src",
                 "Z:/ignitron sections/.pio/libdeps/esp32dev/ButtonFever/src",
                 "Z:/ignitron sections/.pio/libdeps/esp32dev/ESP32 BLE Keyboard",
                 "Z:/ignitron sections/.pio/libdeps/esp32dev/NimBLE-Arduino/src",
@@ -265,9 +265,9 @@
                 "path": [
                     "Z:/ignitron sections",
                     "Z:/ignitron sections/src",
+                    "C:/Users/mpkot/.platformio/packages/framework-arduinoespressif32/libraries/BluetoothSerial/src",
                     "C:/Users/mpkot/.platformio/packages/framework-arduinoespressif32/libraries/LittleFS/src",
                     "C:/Users/mpkot/.platformio/packages/framework-arduinoespressif32/libraries/FS/src",
-                    "C:/Users/mpkot/.platformio/packages/framework-arduinoespressif32/libraries/BluetoothSerial/src",
                     "Z:/ignitron sections/.pio/libdeps/esp32dev/ButtonFever/src",
                     "Z:/ignitron sections/.pio/libdeps/esp32dev/ESP32 BLE Keyboard",
                     "Z:/ignitron sections/.pio/libdeps/esp32dev/NimBLE-Arduino/src",
