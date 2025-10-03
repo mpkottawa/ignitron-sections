@@ -85,8 +85,14 @@ void setup() {
 
     // Debounced "Hold 3 while in APP mode" to cycle sections
 static unsigned long lastSectionSwitchMs = 0;
-static const unsigned long sectionSwitchDebounceMs = 600; // tweak if you like
+static const unsigned long sectionSwitchDebounceMs = 600; //   mk tweak if you like
+}
 
+// Debounced "Hold 3 while in APP mode" to cycle sections
+static unsigned long lastSectionSwitchMs = 0;
+static const unsigned long sectionSwitchDebounceMs = 600; //   mk tweak if you like
+
+  
 void handleSectionSwitchIfNeeded() {
   // Replace with your real flags/functions if their names differ
   extern bool appModeActive;        // or however you track APP mode

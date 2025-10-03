@@ -32,7 +32,10 @@ bool SectionRanges::loadFromPresetList(const char* listPath) {
                 sections_.push_back(current);
             }
             current = SectionRange{};
-            current.label = line.substring(1).trim(); // contents after '#'
+            String secName = line.substring(1);
+            secName.trim();
+            current.label = secName;
+
             current.startBank = 999999; // sentinel; set when we see first -- Bank
             current.endBank = -1;
             haveOpenSection = true;
